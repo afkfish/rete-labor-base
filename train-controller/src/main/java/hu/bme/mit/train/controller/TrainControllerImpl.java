@@ -2,6 +2,8 @@ package hu.bme.mit.train.controller;
 
 import hu.bme.mit.train.interfaces.TrainController;
 
+import java.util.Date;
+
 public class TrainControllerImpl implements TrainController {
 
 	private int step = 0;
@@ -49,6 +51,11 @@ public class TrainControllerImpl implements TrainController {
 	@Override
 	public void setEmergencyBrake(boolean emergencyBrake) {
 		referenceSpeed = 0;
+	}
+
+	@Override
+	public void storeTachograph() {
+		tachograph.put(new Date(), this.step, referenceSpeed);
 	}
 
 }
