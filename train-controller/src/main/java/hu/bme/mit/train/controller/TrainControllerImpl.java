@@ -6,20 +6,52 @@ import java.util.Date;
 
 public class TrainControllerImpl implements TrainController {
 
+	private Thread trainTickThread;
+
 	private int step = 0;
 	private int referenceSpeed = 0;
 	private int speedLimit = 0;
 
 	@Override
-	public void followSpeed() {
+	public void startTrainTickThread(int tickInterval) throws IllegalArgumentException {
+		if (trainTickThread != null) {
+			throw new IllegalArgumentException("Thread is already running");
+		}
+		this.trainTickThread = new Thread(() -> {
+			while (true) {
+				synchronized(this) {
+					followSpeed();
+					storeTachograph();
+				}
+
+				try {
+					Thread.sleep(tickInterval);
+				} catch (InterruptedException e) {
+					System.out.println("Thread interrupted");
+				}
+			}
+		});
+	}
+
+	@Override
+	public void stopTrainTickThread() {
+		if (trainTickThread != null) {
+			trainTickThread.interrupt();
+			trainTickThread = null;
+			System.out.println("Thread stopped");
+		}
+	}
+
+	@Override
+	synchronized public void followSpeed() {
 		if (referenceSpeed < 0) {
 			referenceSpeed = 0;
 		} else {
-		    if(referenceSpeed+step > 0) {
-                referenceSpeed += step;
-            } else {
-		        referenceSpeed = 0;
-            }
+			if (referenceSpeed + step > 0) {
+				referenceSpeed += step;
+			} else {
+				referenceSpeed = 0;
+			}
 		}
 
 		enforceSpeedLimit();
@@ -33,11 +65,12 @@ public class TrainControllerImpl implements TrainController {
 	@Override
 	public void setSpeedLimit(int speedLimit) {
 		this.speedLimit = speedLimit;
-		enforceSpeedLimit();
-		
+		synchronized (this) {
+			enforceSpeedLimit();
+		}
 	}
 
-	private void enforceSpeedLimit() {
+	synchronized private void enforceSpeedLimit() {
 		if (referenceSpeed > speedLimit) {
 			referenceSpeed = speedLimit;
 		}
@@ -49,12 +82,12 @@ public class TrainControllerImpl implements TrainController {
 	}
 
 	@Override
-	public void setEmergencyBrake(boolean emergencyBrake) {
+	synchronized public void setEmergencyBrake(boolean emergencyBrake) {
 		referenceSpeed = 0;
 	}
 
 	@Override
-	public void storeTachograph() {
+	synchronized public void storeTachograph() {
 		tachograph.put(new Date(), this.step, referenceSpeed);
 	}
 
