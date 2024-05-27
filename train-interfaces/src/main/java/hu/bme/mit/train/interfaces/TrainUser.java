@@ -10,4 +10,7 @@ public interface TrainUser {
 
 	void triggerEmergencyBrake();
 
+	boolean getAlarmState();
+
+	void setAlarmState(boolean alarmState);
 }
