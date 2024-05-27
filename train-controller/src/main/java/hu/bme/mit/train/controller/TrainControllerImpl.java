@@ -3,12 +3,15 @@ package hu.bme.mit.train.controller;
 import hu.bme.mit.train.interfaces.TrainController;
 
 import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class TrainControllerImpl implements TrainController {
 
 	private int step = 0;
 	private int referenceSpeed = 0;
 	private int speedLimit = 0;
+
 
 	@Override
 	public void followSpeed() {
@@ -58,4 +61,20 @@ public class TrainControllerImpl implements TrainController {
 		tachograph.put(new Date(), this.step, referenceSpeed);
 	}
 
+	public void startTrainScheduler() {
+		long delay = 1000L;
+		Timer timer = new Timer();
+		TimerTask task = new TimerTask() {
+			@Override
+			public void run() {
+				followSpeed();
+				storeTachograph();
+			}
+		};
+		timer.schedule(task, delay);
+	}
+
+	public TrainControllerImpl() {
+		startTrainScheduler();
+	}
 }
