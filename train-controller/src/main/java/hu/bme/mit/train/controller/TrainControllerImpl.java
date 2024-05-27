@@ -12,6 +12,10 @@ public class TrainControllerImpl implements TrainController {
 	private int referenceSpeed = 0;
 	private int speedLimit = 0;
 
+	public TrainControllerImpl() {
+		startTrainTickThread(1000);
+	}
+
 	@Override
 	public void startTrainTickThread(int tickInterval) throws IllegalArgumentException {
 		if (trainTickThread != null) {
