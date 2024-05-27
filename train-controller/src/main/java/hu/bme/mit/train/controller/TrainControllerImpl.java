@@ -73,4 +73,8 @@ public class TrainControllerImpl implements TrainController {
 		};
 		timer.schedule(task, delay);
 	}
+
+	public TrainControllerImpl() {
+		startTrainScheduler();
+	}
 }
