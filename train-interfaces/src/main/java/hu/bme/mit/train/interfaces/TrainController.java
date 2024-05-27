@@ -8,6 +8,10 @@ import java.util.Date;
 public interface TrainController {
 	Table<Date, Integer, Integer> tachograph = HashBasedTable.create();
 
+	void startTrainTickThread(int tickInterval);
+
+	void stopTrainTickThread();
+
 	void followSpeed();
 
 	int getReferenceSpeed();
